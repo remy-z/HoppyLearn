@@ -12,12 +12,12 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class Card {
-    private Long id;
+    private String id;
     private String front;
     private String back;
-    private Long deckId;
+    private String deckId;
 
-    public Card(String front, String back, Long deckId) {
+    public Card(String front, String back, String deckId) {
         this.front = front;
         this.back = back;
         this.deckId = deckId;

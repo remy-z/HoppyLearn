@@ -1,6 +1,8 @@
 package com.hoppylearn.service.impl;
 
+import com.hoppylearn.exception.IllegalUserInputException;
 import com.hoppylearn.model.entity.Deck;
+import com.hoppylearn.model.paramaters.DeckSearchParams;
 import com.hoppylearn.repository.DeckRepository;
 import com.hoppylearn.service.DeckService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +24,11 @@ public class InMemoryDeckService implements DeckService {
     @Override
     public Deck createDeck(String name) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Deck name cannot be null or empty");
+            throw new IllegalUserInputException("Deck name cannot be null or empty");
         }
 
-        if (this.deckExists(name)) {
-            throw new IllegalArgumentException("Deck name already exists");
+        if (this.deckExistsByName(name)) {
+            throw new IllegalUserInputException("Deck name already exists: " + name.trim());
         }
 
         Deck deck = new Deck(name.trim());
@@ -34,7 +36,7 @@ public class InMemoryDeckService implements DeckService {
     }
 
     @Override
-    public Deck getDeck(Long id) {
+    public Deck getDeck(String id) {
         if (id == null) {
             return null;
         }
@@ -42,36 +44,31 @@ public class InMemoryDeckService implements DeckService {
     }
 
     @Override
-    public Deck getDeck(String name) {
-        if (name == null || name.trim().isEmpty()) {
+    public List<Deck> getDecks(DeckSearchParams searchParams) {
+        if (searchParams == null) {
             return null;
         }
-        return deckRepository.getDeck(name.trim());
+        return deckRepository.getDecks(searchParams);
     }
 
     @Override
-    public List<Deck> getAllDecks() {
-        return deckRepository.getAllDecks();
-    }
-
-    @Override
-    public boolean deleteDeck(Long id) {
+    public boolean deleteDeck(String id) {
         if (id == null) {
-            return false;
+            throw new IllegalUserInputException("Deck ID cannot be null");
         }
         return deckRepository.deleteDeck(id);
     }
 
     @Override
-    public boolean deckExists(Long id) {
+    public boolean deckExistsById(String id) {
         if (id == null) {
-            return false;
+            throw new IllegalUserInputException("Deck ID cannot be null");
         }
-        return deckRepository.deckExists(id);
+        return deckRepository.deckExistsById(id);
     }
 
     @Override
-    public boolean deckExists(String name) {
-        return deckRepository.deckExists(name);
+    public boolean deckExistsByName(String name) {
+        return deckRepository.deckExistsByName(name);
     }
 }

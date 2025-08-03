@@ -14,13 +14,13 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class Deck {
-    private Long id;
+    private String id;
     private String deckName;
-    private List<Long> cardIds;
+    private List<String> cardIds;
 
     // Custom constructor for common use case
     public Deck(String deckName) {
         this.deckName = deckName;
-        this.cardIds = new ArrayList<Long>();
+        this.cardIds = new ArrayList<String>();
     }
 }

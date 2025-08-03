@@ -12,12 +12,12 @@ import com.hoppylearn.model.entity.Deck;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeckResponse {
-    private int id;
+    private String id;
     private String deckName;
-    private List<Long> cardIds;
+    private List<String> cardIds;
 
     public DeckResponse(Deck deck) {
-        this.id = deck.getId().intValue();
+        this.id = deck.getId();
         this.deckName = deck.getDeckName();
         this.cardIds = deck.getCardIds();
     }

@@ -1,6 +1,7 @@
 package com.hoppylearn.repository;
 
 import com.hoppylearn.model.entity.Deck;
+import com.hoppylearn.model.paramaters.DeckSearchParams;
 import java.util.List;
 
 // Interface for different implementations of storage
@@ -20,22 +21,14 @@ public interface DeckRepository {
      * @param id The deck ID
      * @return Optional containing the deck if found, empty otherwise
      */
-    Deck getDeck(Long id);
-
-    /**
-     * Find a deck by its ID
-     * 
-     * @param id The deck ID
-     * @return Optional containing the deck if found, empty otherwise
-     */
-    Deck getDeck(String name);
+    Deck getDeck(String id);
 
     /**
      * Get all decks
      * 
      * @return List of all decks
      */
-    List<Deck> getAllDecks();
+    List<Deck> getDecks(DeckSearchParams searchParams);
 
     /**
      * Delete a deck by ID
@@ -43,7 +36,7 @@ public interface DeckRepository {
      * @param id The deck ID to delete
      * @return true if deck was deleted, false if not found
      */
-    boolean deleteDeck(Long id);
+    boolean deleteDeck(String id);
 
     /**
      * Check if a deck exists by ID
@@ -51,7 +44,7 @@ public interface DeckRepository {
      * @param id The deck ID
      * @return true if deck exists, false otherwise
      */
-    boolean deckExists(Long id);
+    boolean deckExistsById(String id);
 
     /**
      * Check if a deck exists by name
@@ -59,7 +52,7 @@ public interface DeckRepository {
      * @param name The name of the deck
      * @return true if deck with the given name exists, false otherwise
      */
-    boolean deckExists(String name);
+    boolean deckExistsByName(String name);
 
     /**
      * Count total number of decks

@@ -1,6 +1,9 @@
 package com.hoppylearn.repository.impl;
 
+import com.hoppylearn.exception.IllegalUserInputException;
+import com.hoppylearn.exception.ResourceNotFoundException;
 import com.hoppylearn.model.entity.Deck;
+import com.hoppylearn.model.paramaters.DeckSearchParams;
 import com.hoppylearn.repository.DeckRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -8,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 // In-memory implementation of DeckRepository, active when "memory" profile is set
 @Repository
@@ -15,18 +19,18 @@ import java.util.concurrent.atomic.AtomicLong;
 public class InMemoryDeckRepository implements DeckRepository {
 
     // Thread-safe storage for decks
-    private final Map<Long, Deck> storage = new ConcurrentHashMap<>();
+    private final Map<String, Deck> storage = new ConcurrentHashMap<>();
     private final Map<String, Deck> names = new ConcurrentHashMap<>();
     private final AtomicLong idGenerator = new AtomicLong(1);
 
     @Override
     public Deck saveDeck(Deck deck) {
         if (deck == null) {
-            throw new IllegalArgumentException("Deck cannot be null");
+            throw new IllegalUserInputException("Deck cannot be null");
         }
 
         if (deck.getId() == null) {
-            deck.setId(idGenerator.getAndIncrement());
+            deck.setId(String.valueOf(idGenerator.getAndIncrement()));
         }
 
         storage.put(deck.getId(), deck);
@@ -35,7 +39,7 @@ public class InMemoryDeckRepository implements DeckRepository {
     }
 
     @Override
-    public Deck getDeck(Long id) {
+    public Deck getDeck(String id) {
         if (id == null) {
             return null;
         }
@@ -43,28 +47,28 @@ public class InMemoryDeckRepository implements DeckRepository {
     }
 
     @Override
-    public Deck getDeck(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return null;
+    public List<Deck> getDecks(DeckSearchParams searchParams) {
+        if (searchParams == null) {
+            return new ArrayList<>(storage.values());
         }
-        return names.get(name.trim());
+        List<Deck> filtered = storage.values().stream()
+                .filter(deck -> searchParams.getName() == null || deck.getDeckName().equals(searchParams.getName()))
+                .collect(Collectors.toList());
+        return filtered;
     }
 
     @Override
-    public List<Deck> getAllDecks() {
-        return new ArrayList<>(storage.values());
-    }
-
-    @Override
-    public boolean deleteDeck(Long id) {
-        if (id == null) {
-            return false;
+    public boolean deleteDeck(String id) {
+        Deck removedDeck = storage.remove(id);
+        if (removedDeck == null) {
+            throw new ResourceNotFoundException("Deck not found with id: " + id);
         }
-        return storage.remove(id) != null;
+        names.remove(removedDeck.getDeckName());
+        return removedDeck != null;
     }
 
     @Override
-    public boolean deckExists(Long id) {
+    public boolean deckExistsById(String id) {
         if (id == null) {
             return false;
         }
@@ -72,7 +76,7 @@ public class InMemoryDeckRepository implements DeckRepository {
     }
 
     @Override
-    public boolean deckExists(String name) {
+    public boolean deckExistsByName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return false;
         }
@@ -91,7 +95,7 @@ public class InMemoryDeckRepository implements DeckRepository {
     }
 
     // Get current state - for testing purposes
-    public Map<Long, Deck> getStorageSnapshot() {
+    public Map<String, Deck> getStorageSnapshot() {
         return new HashMap<>(storage);
     }
 }
